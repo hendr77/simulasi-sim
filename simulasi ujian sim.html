@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Ujian Teori SIM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .question-option:hover {
+            background-color: #e0f2fe; /* sky-100 */
+        }
+        .question-option.selected {
+            background-color: #bae6fd; /* sky-200 */
+            border-color: #0284c7; /* sky-600 */
+        }
+        .nav-button {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-button.answered {
+            background-color: #22c55e; /* green-500 */
+            color: white;
+            border-color: #16a34a;
+        }
+        .nav-button.current {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            border-color: #2563eb;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="p-8 md:p-16 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Simulasi Ujian Teori SIM</h1>
+            <p class="mt-4 text-lg text-gray-600">Selamat datang di latihan ujian teori SIM. Ujian ini terdiri dari 30 soal dengan batas waktu 30 menit. Klik tombol di bawah untuk memulai.</p>
+            <button id="start-btn" class="mt-8 bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors text-xl">
+                Mulai Ujian
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <header class="bg-gray-800 text-white p-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold">Ujian Teori SIM</h2>
+                <div id="timer" class="bg-red-600 font-bold py-2 px-4 rounded-lg text-lg">
+                    30:00
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+                <!-- Main Question Area -->
+                <div class="lg:col-span-2">
+                    <div id="question-container" class="p-6 border rounded-lg bg-gray-50 min-h-[300px]">
+                        <p class="text-gray-600 mb-2">Pertanyaan <span id="question-number">1</span> dari 30</p>
+                        <p id="question-text" class="text-lg font-semibold mb-6">Teks pertanyaan akan muncul di sini.</p>
+                        <div id="options-container" class="space-y-3">
+                            <!-- Opsi jawaban akan diisi oleh JavaScript -->
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                        <button id="prev-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors">Sebelumnya</button>
+                        <button id="next-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Berikutnya</button>
+                    </div>
+                </div>
+
+                <!-- Navigation & Finish Area -->
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-bold mb-4 text-center">Navigasi Soal</h3>
+                    <div id="question-nav" class="grid grid-cols-6 gap-2 mb-6">
+                        <!-- Tombol navigasi akan diisi oleh JavaScript -->
+                    </div>
+                    <button id="finish-btn" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors">
+                        Selesai & Kumpulkan Jawaban
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden p-8 md:p-16 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Hasil Ujian</h1>
+            <div class="mt-8 text-2xl">
+                <p>Skor Anda:</p>
+                <p id="score" class="text-6xl font-extrabold text-blue-600 my-4">0</p>
+                <p id="score-details" class="text-lg text-gray-600">Detail skor akan muncul di sini.</p>
+            </div>
+            <button id="retry-btn" class="mt-10 bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors text-xl">
+                Coba Lagi
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questions = [
+                {
+                    question: "Rambu dengan latar biru dan gambar sepeda motor di dalamnya memiliki arti...",
+                    options: ["Dilarang masuk bagi sepeda motor", "Jalur khusus sepeda motor", "Area parkir sepeda motor", "Hati-hati banyak sepeda motor"],
+                    answer: "Jalur khusus sepeda motor"
+                },
+                {
+                    question: "Saat mendekati perlintasan kereta api yang tidak memiliki palang pintu, apa yang harus Anda lakukan?",
+                    options: ["Menambah kecepatan agar cepat lewat", "Membunyikan klakson terus-menerus", "Berhenti sejenak, tengok kanan dan kiri, lalu melintas jika aman", "Mengikuti kendaraan di depan tanpa ragu"],
+                    answer: "Berhenti sejenak, tengok kanan dan kiri, lalu melintas jika aman"
+                },
+                {
+                    question: "Apa fungsi utama dari marka jalan berupa garis utuh (tidak terputus) di tengah jalan?",
+                    options: ["Sebagai hiasan jalan", "Pengendara dilarang melintasi atau mendahului di garis tersebut", "Menandakan batas kecepatan", "Area boleh parkir"],
+                    answer: "Pengendara dilarang melintasi atau mendahului di garis tersebut"
+                },
+                {
+                    question: "Jika Anda melihat lampu lalu lintas menyala kuning, tindakan yang paling tepat adalah...",
+                    options: ["Menambah kecepatan agar tidak kena lampu merah", "Langsung berhenti di mana saja", "Bersiap-siap untuk berhenti karena lampu akan segera merah", "Tetap melaju dengan kecepatan normal"],
+                    answer: "Bersiap-siap untuk berhenti karena lampu akan segera merah"
+                },
+                {
+                    question: "Penggunaan lajur paling kanan di jalan tol diperuntukkan bagi...",
+                    options: ["Kendaraan yang berjalan lambat", "Semua jenis kendaraan", "Kendaraan yang akan mendahului kendaraan lain", "Bus dan truk saja"],
+                    answer: "Kendaraan yang akan mendahului kendaraan lain"
+                },
+                {
+                    question: "Apa kepanjangan dari SIM?",
+                    options: ["Surat Izin Mengemudi", "Surat Izin Mengendarai", "Sertifikat Izin Mengemudi", "Surat Izin Mengoperasikan"],
+                    answer: "Surat Izin Mengemudi"
+                },
+                {
+                    question: "Rambu berbentuk segitiga dengan warna dasar kuning dan garis tepi merah biasanya berisi...",
+                    options: ["Perintah", "Larangan", "Peringatan bahaya", "Petunjuk arah"],
+                    answer: "Peringatan bahaya"
+                },
+                {
+                    question: "Saat akan berpindah lajur, tiga hal yang wajib Anda lakukan secara berurutan adalah...",
+                    options: ["Lihat spion, nyalakan lampu sein, pindah lajur", "Nyalakan lampu sein, lihat spion, pindah lajur jika aman", "Pindah lajur dulu, baru nyalakan sein", "Bunyikan klakson, pindah lajur, matikan klakson"],
+                    answer: "Nyalakan lampu sein, lihat spion, pindah lajur jika aman"
+                },
+                {
+                    question: "Berapa batas usia minimal untuk bisa mendapatkan SIM C (sepeda motor)?",
+                    options: ["16 tahun", "17 tahun", "18 tahun", "20 tahun"],
+                    answer: "17 tahun"
+                },
+                {
+                    question: "Apa yang harus Anda lakukan jika melihat pejalan kaki sedang menyeberang di zebra cross?",
+                    options: ["Membunyikan klakson agar mereka cepat", "Menambah kecepatan", "Memberikan prioritas dan berhenti untuk mempersilakan mereka menyeberang", "Menyalip dari sisi lain"],
+                    answer: "Memberikan prioritas dan berhenti untuk mempersilakan mereka menyeberang"
+                },
+                {
+                    question: "Rambu dengan simbol huruf 'P' dicoret merah berarti...",
+                    options: ["Area Parkir", "Dilarang Putar Balik", "Dilarang Parkir", "Dilarang Berhenti"],
+                    answer: "Dilarang Parkir"
+                },
+                {
+                    question: "Penggunaan lampu hazard (kedua lampu sein berkedip bersamaan) yang benar adalah...",
+                    options: ["Saat hujan deras", "Saat melewati persimpangan", "Saat kendaraan berhenti dalam kondisi darurat", "Saat akan lurus di perempatan"],
+                    answer: "Saat kendaraan berhenti dalam kondisi darurat"
+                },
+                {
+                    question: "Di persimpangan yang tidak dilengkapi lampu lalu lintas, siapa yang mendapat prioritas utama?",
+                    options: ["Kendaraan yang lebih besar", "Kendaraan dari arah kanan", "Kendaraan yang datang dari jalan utama", "Kendaraan yang membunyikan klakson lebih dulu"],
+                    answer: "Kendaraan yang datang dari jalan utama"
+                },
+                {
+                    question: "Apa fungsi dari kaca spion?",
+                    options: ["Untuk melihat penumpang di belakang", "Untuk melihat pemandangan di samping", "Untuk melihat kondisi lalu lintas di belakang dan samping kendaraan", "Sebagai aksesoris kendaraan"],
+                    answer: "Untuk melihat kondisi lalu lintas di belakang dan samping kendaraan"
+                },
+                {
+                    question: "Dokumen yang wajib dibawa saat Anda mengemudikan kendaraan bermotor adalah...",
+                    options: ["KTP dan Kartu Keluarga", "SIM dan STNK", "BPKB dan Faktur", "Kartu Asuransi dan KTP"],
+                    answer: "SIM dan STNK"
+                },
+                {
+                    question: "Rambu berbentuk lingkaran dengan latar putih, garis tepi merah, dan gambar mobil di dalamnya berarti...",
+                    options: ["Area khusus mobil", "Dilarang masuk bagi semua kendaraan bermotor", "Perintah masuk bagi mobil", "Dilarang masuk bagi mobil"],
+                    answer: "Dilarang masuk bagi semua kendaraan bermotor"
+                },
+                {
+                    question: "Jarak aman minimal di belakang kendaraan di depan Anda saat kondisi normal idealnya adalah...",
+                    options: ["Sekitar 1 detik", "Sekitar 3 detik", "Sekitar 10 detik", "Tidak ada aturan pasti"],
+                    answer: "Sekitar 3 detik"
+                },
+                {
+                    question: "Tindakan yang paling tepat saat Anda didahului oleh kendaraan darurat (ambulans/pemadam kebakaran) yang menyalakan sirene adalah...",
+                    options: ["Menambah kecepatan agar tidak menghalangi", "Mengikuti dari belakang", "Menepi dan memberikan jalan", "Tetap di lajur dan tidak mengubah kecepatan"],
+                    answer: "Menepi dan memberikan jalan"
+                },
+                {
+                    question: "Apa arti dari marka jalan 'Yellow Box Junction' (kotak kuning bergaris silang) di persimpangan?",
+                    options: ["Area dilarang parkir", "Area khusus berhenti", "Kendaraan tidak boleh masuk ke dalam kotak jika jalan keluar tertutup", "Area putar balik"],
+                    answer: "Kendaraan tidak boleh masuk ke dalam kotak jika jalan keluar tertutup"
+                },
+                {
+                    question: "Saat mengemudi di malam hari, kapan Anda harus mengganti lampu jauh ke lampu dekat?",
+                    options: ["Saat tidak ada kendaraan lain", "Saat berpapasan dengan kendaraan dari arah berlawanan", "Saat jalanan sepi", "Tidak perlu diganti"],
+                    answer: "Saat berpapasan dengan kendaraan dari arah berlawanan"
+                },
+                {
+                    question: "Batas kecepatan maksimum di dalam kota umumnya adalah...",
+                    options: ["30 km/jam", "50 km/jam", "80 km/jam", "100 km/jam"],
+                    answer: "50 km/jam"
+                },
+                {
+                    question: "Apa yang dimaksud dengan STNK?",
+                    options: ["Surat Tanda Nomor Kendaraan", "Sertifikat Tanda Nomor Kendaraan", "Surat Tanda Nama Kendaraan", "Surat Tilang Nomor Kendaraan"],
+                    answer: "Surat Tanda Nomor Kendaraan"
+                },
+                {
+                    question: "Jika ban mobil Anda pecah saat melaju kencang, tindakan pertama yang harus dilakukan adalah...",
+                    options: ["Langsung menginjak rem sekuat-kuatnya", "Membanting setir ke arah yang berlawanan", "Tetap tenang, pegang kemudi dengan kuat, dan kurangi kecepatan perlahan", "Langsung mematikan mesin"],
+                    answer: "Tetap tenang, pegang kemudi dengan kuat, dan kurangi kecepatan perlahan"
+                },
+                {
+                    question: "Rambu dengan latar biru dan panah putih menunjuk ke kiri berarti...",
+                    options: ["Boleh belok kiri", "Hati-hati ada tikungan ke kiri", "Wajib mengikuti arah ke kiri", "Dilarang belok kiri"],
+                    answer: "Wajib mengikuti arah ke kiri"
+                },
+                {
+                    question: "Mengemudi sambil menggunakan ponsel tanpa hands-free adalah pelanggaran karena...",
+                    options: ["Membuat baterai ponsel cepat habis", "Mengganggu sinyal radio", "Mengurangi konsentrasi dan membahayakan keselamatan", "Melanggar hak cipta"],
+                    answer: "Mengurangi konsentrasi dan membahayakan keselamatan"
+                },
+                {
+                    question: "Posisi tangan yang paling direkomendasikan pada kemudi/setir mobil adalah...",
+                    options: ["Posisi jam 10 dan 2", "Satu tangan di atas, satu tangan bebas", "Kedua tangan di bagian bawah", "Posisi jam 9 dan 3"],
+                    answer: "Posisi jam 9 dan 3"
+                },
+                {
+                    question: "Fungsi utama sabuk pengaman adalah...",
+                    options: ["Agar terlihat patuh pada aturan", "Menjaga agar tidak mengantuk", "Menahan tubuh agar tidak terlempar saat terjadi benturan", "Sebagai hiasan interior mobil"],
+                    answer: "Menahan tubuh agar tidak terlempar saat terjadi benturan"
+                },
+                {
+                    question: "Saat akan memarkir kendaraan secara paralel di tepi jalan, hal pertama yang harus dilakukan adalah...",
+                    options: ["Langsung memundurkan mobil", "Menyalakan lampu sein sesuai arah parkir", "Membuka pintu untuk melihat", "Meminta bantuan orang lain"],
+                    answer: "Menyalakan lampu sein sesuai arah parkir"
+                },
+                {
+                    question: "Apa yang dimaksud dengan 'aquaplaning' atau 'hydroplaning'?",
+                    options: ["Mobil yang bisa berjalan di air", "Ban kehilangan cengkeraman pada permukaan jalan yang basah", "Sistem pendingin mobil yang menggunakan air", "Teknik mencuci mobil dengan air bertekanan"],
+                    answer: "Ban kehilangan cengkeraman pada permukaan jalan yang basah"
+                },
+                {
+                    question: "Jika Anda terlibat dalam kecelakaan lalu lintas yang mengakibatkan korban luka, kewajiban pertama Anda adalah...",
+                    options: ["Melarikan diri", "Menghubungi pengacara", "Memberikan pertolongan kepada korban dan melaporkan ke polisi", "Memperbaiki kerusakan kendaraan"],
+                    answer: "Memberikan pertolongan kepada korban dan melaporkan ke polisi"
+                }
+            ];
+
+            // --- ELEMEN DOM & STATE ---
+            const startScreen = document.getElementById('start-screen');
+            const quizScreen = document.getElementById('quiz-screen');
+            const resultScreen = document.getElementById('result-screen');
+            const startBtn = document.getElementById('start-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const finishBtn = document.getElementById('finish-btn');
+            const retryBtn = document.getElementById('retry-btn');
+            const questionNumberEl = document.getElementById('question-number');
+            const questionTextEl = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            const questionNav = document.getElementById('question-nav');
+            const timerEl = document.getElementById('timer');
+            const scoreEl = document.getElementById('score');
+            const scoreDetailsEl = document.getElementById('score-details');
+
+            let currentQuestionIndex = 0;
+            let userAnswers = new Array(questions.length).fill(null);
+            let timerInterval;
+            const quizTime = 30 * 60;
+
+            // --- FUNGSI-FUNGSI ---
+            function startQuiz() {
+                startScreen.classList.add('hidden');
+                resultScreen.classList.add('hidden');
+                quizScreen.classList.remove('hidden');
+                currentQuestionIndex = 0;
+                userAnswers.fill(null);
+                buildQuestionNav();
+                showQuestion(currentQuestionIndex);
+                startTimer();
+            }
+
+            function showQuestion(index) {
+                const question = questions[index];
+                questionNumberEl.textContent = index + 1;
+                questionTextEl.textContent = question.question;
+                optionsContainer.innerHTML = '';
+                question.options.forEach(option => {
+                    const optionEl = document.createElement('div');
+                    optionEl.className = 'p-4 border rounded-lg cursor-pointer question-option';
+                    const radioEl = document.createElement('input');
+                    radioEl.type = 'radio';
+                    radioEl.name = 'option';
+                    radioEl.value = option;
+                    radioEl.className = 'mr-3';
+                    radioEl.id = `opt-${option.replace(/[^a-zA-Z0-9]/g, "")}`;
+                    const labelEl = document.createElement('label');
+                    labelEl.textContent = option;
+                    labelEl.htmlFor = `opt-${option.replace(/[^a-zA-Z0-9]/g, "")}`;
+                    labelEl.className = 'w-full';
+                    optionEl.appendChild(radioEl);
+                    optionEl.appendChild(labelEl);
+                    if (userAnswers[index] === option) {
+                        optionEl.classList.add('selected');
+                        radioEl.checked = true;
+                    }
+                    optionEl.addEventListener('click', () => selectAnswer(index, option, optionEl));
+                    optionsContainer.appendChild(optionEl);
+                });
+                updateNavButtons();
+                updateQuestionNavHighlight();
+            }
+
+            function selectAnswer(index, option, optionEl) {
+                userAnswers[index] = option;
+                document.querySelectorAll('.question-option').forEach(el => el.classList.remove('selected'));
+                optionEl.classList.add('selected');
+                updateQuestionNavStatus(index);
+            }
+
+            function nextQuestion() {
+                if (currentQuestionIndex < questions.length - 1) {
+                    currentQuestionIndex++;
+                    showQuestion(currentQuestionIndex);
+                }
+            }
+
+            function prevQuestion() {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    showQuestion(currentQuestionIndex);
+                }
+            }
+
+            function jumpToQuestion(index) {
+                currentQuestionIndex = index;
+                showQuestion(currentQuestionIndex);
+            }
+
+            function updateNavButtons() {
+                prevBtn.disabled = currentQuestionIndex === 0;
+                prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
+                nextBtn.disabled = currentQuestionIndex === questions.length - 1;
+                nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
+            }
+
+            function buildQuestionNav() {
+                questionNav.innerHTML = '';
+                for (let i = 0; i < questions.length; i++) {
+                    const navBtn = document.createElement('button');
+                    navBtn.textContent = i + 1;
+                    navBtn.className = 'w-10 h-10 border rounded-md font-bold nav-button';
+                    navBtn.addEventListener('click', () => jumpToQuestion(i));
+                    questionNav.appendChild(navBtn);
+                }
+            }
+
+            function updateQuestionNavHighlight() {
+                const navButtons = questionNav.children;
+                for (let i = 0; i < navButtons.length; i++) {
+                    navButtons[i].classList.remove('current');
+                    if (i === currentQuestionIndex) {
+                        navButtons[i].classList.add('current');
+                    }
+                }
+            }
+
+            function updateQuestionNavStatus(index) {
+                questionNav.children[index].classList.add('answered');
+            }
+
+            function startTimer() {
+                let timeLeft = quizTime;
+                clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        showResults();
+                    }
+                }, 1000);
+            }
+
+            function endQuiz() {
+                clearInterval(timerInterval);
+                showResults();
+            }
+
+            function showResults() {
+                quizScreen.classList.add('hidden');
+                resultScreen.classList.remove('hidden');
+                let correctAnswers = 0;
+                questions.forEach((q, i) => {
+                    if (userAnswers[i] === q.answer) {
+                        correctAnswers++;
+                    }
+                });
+                const scoreValue = (correctAnswers / questions.length) * 100;
+                scoreEl.textContent = scoreValue.toFixed(0);
+                scoreDetailsEl.textContent = `Anda menjawab benar ${correctAnswers} dari ${questions.length} soal.`;
+            }
+
+            startBtn.addEventListener('click', startQuiz);
+            nextBtn.addEventListener('click', nextQuestion);
+            prevBtn.addEventListener('click', prevQuestion);
+            finishBtn.addEventListener('click', endQuiz);
+            retryBtn.addEventListener('click', () => {
+                resultScreen.classList.add('hidden');
+                startScreen.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
