@@ -67,7 +67,7 @@
                 <!-- Main Question Area -->
                 <div class="lg:col-span-2">
                     <div id="question-container" class="p-6 border rounded-lg bg-gray-50 min-h-[300px]">
-                        <p class="text-gray-600 mb-2">Pertanyaan <span id="question-number">1</span> dari 30</p>
+                        <p class="text-gray-600 mb-2">Pertanyaan <span id="question-number">1</span> dari <span id="total-questions">30</span></p>
                         <p id="question-text" class="text-lg font-semibold mb-6">Teks pertanyaan akan muncul di sini.</p>
                         <div id="options-container" class="space-y-3">
                             <!-- Opsi jawaban akan diisi oleh JavaScript -->
@@ -158,7 +158,6 @@
                 { question: "Masa berlaku SIM adalah...", options: ["1 tahun", "2 tahun", "5 tahun", "Seumur hidup"], answer: "5 tahun" },
                 { question: "Saat berpapasan dengan kendaraan lain di jalan yang sempit di tanjakan, siapa yang harus didahulukan?", options: ["Kendaraan yang turun", "Kendaraan yang naik", "Kendaraan yang lebih mahal", "Kendaraan yang lebih dulu sampai"], answer: "Kendaraan yang naik" }
             ];
-            // Catatan: Untuk mempersingkat, saya hanya menampilkan beberapa contoh soal. Total soal dalam array ini adalah 300.
             
             const startScreen = document.getElementById('start-screen');
             const quizScreen = document.getElementById('quiz-screen');
@@ -184,17 +183,16 @@
             const quizTime = 30 * 60;
             const questionsPerSession = 30;
 
-            // --- PERBAIKAN DI SINI: Fungsi reset yang lebih lengkap ---
             function resetQuizState() {
                 clearInterval(timerInterval);
                 currentQuizQuestions = [];
-                currentQuestionIndex = 0;
+                currentQuestionIndex = 0; // Reset to first question
                 userAnswers = [];
                 timerEl.textContent = "30:00";
             }
 
             function startQuiz() {
-                resetQuizState(); // Pastikan semua di-reset saat mulai
+                resetQuizState();
                 
                 startScreen.classList.add('hidden');
                 resultScreen.classList.add('hidden');
@@ -207,11 +205,12 @@
                 totalQuestionsEl.textContent = currentQuizQuestions.length;
                 
                 buildQuestionNav();
-                showQuestion(currentQuestionIndex);
+                showQuestion(0); // Always start from question 1
                 startTimer();
             }
 
             function showQuestion(index) {
+                currentQuestionIndex = index; // Update current index
                 const question = currentQuizQuestions[index];
                 questionNumberEl.textContent = index + 1;
                 questionTextEl.textContent = question.question;
@@ -264,8 +263,7 @@
             }
 
             function jumpToQuestion(index) {
-                currentQuestionIndex = index;
-                showQuestion(currentQuestionIndex);
+                showQuestion(index);
             }
 
             function updateNavButtons() {
@@ -340,7 +338,7 @@
             finishBtn.addEventListener('click', endQuiz);
             
             retryBtn.addEventListener('click', () => {
-                resetQuizState(); // Panggil fungsi reset
+                resetQuizState();
                 resultScreen.classList.add('hidden');
                 startScreen.classList.remove('hidden');
             });
