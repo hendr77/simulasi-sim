@@ -105,7 +105,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const allQuestions = [
-                // 200 Soal Sebelumnya...
+                // 300 Soal...
                 { question: "Rambu dengan latar biru dan gambar sepeda motor di dalamnya memiliki arti...", options: ["Dilarang masuk bagi sepeda motor", "Jalur khusus sepeda motor", "Area parkir sepeda motor", "Hati-hati banyak sepeda motor"], answer: "Jalur khusus sepeda motor" },
                 { question: "Saat mendekati perlintasan kereta api yang tidak memiliki palang pintu, apa yang harus Anda lakukan?", options: ["Menambah kecepatan agar cepat lewat", "Membunyikan klakson terus-menerus", "Berhenti sejenak, tengok kanan dan kiri, lalu melintas jika aman", "Mengikuti kendaraan di depan tanpa ragu"], answer: "Berhenti sejenak, tengok kanan dan kiri, lalu melintas jika aman" },
                 { question: "Apa fungsi utama dari marka jalan berupa garis utuh (tidak terputus) di tengah jalan?", options: ["Sebagai hiasan jalan", "Pengendara dilarang melintasi atau mendahului di garis tersebut", "Menandakan batas kecepatan", "Area boleh parkir"], answer: "Pengendara dilarang melintasi atau mendahului di garis tersebut" },
@@ -184,7 +184,10 @@
                 resultScreen.classList.add('hidden');
                 quizScreen.classList.remove('hidden');
                 
-                currentQuizQuestions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, questionsPerSession);
+                // --- PERBAIKAN DI SINI ---
+                // Membuat salinan array sebelum diacak untuk mencegah error di ujian kedua
+                const shuffledQuestions = [...allQuestions].sort(() => 0.5 - Math.random());
+                currentQuizQuestions = shuffledQuestions.slice(0, questionsPerSession);
                 
                 currentQuestionIndex = 0;
                 userAnswers = new Array(currentQuizQuestions.length).fill(null);
