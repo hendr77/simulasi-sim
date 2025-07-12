@@ -40,7 +40,7 @@
 
     <div id="app-container" class="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
         
-        <!-- Start Screen (TAMPILAN BARU) -->
+        <!-- Start Screen -->
         <div id="start-screen" class="text-center">
             <div class="bg-gray-800 p-6">
                  <img src="https://placehold.co/800x200/1f2937/ffffff?text=Kumpulan+Rambu+Lalu+Lintas" alt="Rambu Lalu Lintas" class="w-full h-auto object-cover rounded-lg">
@@ -184,7 +184,18 @@
             const quizTime = 30 * 60;
             const questionsPerSession = 30;
 
+            // --- PERBAIKAN DI SINI: Fungsi reset yang lebih lengkap ---
+            function resetQuizState() {
+                clearInterval(timerInterval);
+                currentQuizQuestions = [];
+                currentQuestionIndex = 0;
+                userAnswers = [];
+                timerEl.textContent = "30:00";
+            }
+
             function startQuiz() {
+                resetQuizState(); // Pastikan semua di-reset saat mulai
+                
                 startScreen.classList.add('hidden');
                 resultScreen.classList.add('hidden');
                 quizScreen.classList.remove('hidden');
@@ -192,7 +203,6 @@
                 const shuffledQuestions = [...allQuestions].sort(() => 0.5 - Math.random());
                 currentQuizQuestions = shuffledQuestions.slice(0, questionsPerSession);
                 
-                currentQuestionIndex = 0;
                 userAnswers = new Array(currentQuizQuestions.length).fill(null);
                 totalQuestionsEl.textContent = currentQuizQuestions.length;
                 
@@ -329,14 +339,8 @@
             prevBtn.addEventListener('click', prevQuestion);
             finishBtn.addEventListener('click', endQuiz);
             
-            // --- PERBAIKAN DI SINI ---
             retryBtn.addEventListener('click', () => {
-                // Reset semua state sebelum kembali ke halaman awal
-                currentQuizQuestions = [];
-                currentQuestionIndex = 0;
-                userAnswers = [];
-                clearInterval(timerInterval);
-
+                resetQuizState(); // Panggil fungsi reset
                 resultScreen.classList.add('hidden');
                 startScreen.classList.remove('hidden');
             });
